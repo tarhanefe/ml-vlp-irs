@@ -39,4 +39,21 @@ This study highlights the potential of IRS-assisted VLP systems with a single LE
 ## References
 See the full research document for detailed formulas, derivations, and additional references.
 
+## 📖 Citation
+
+If you use this work, please cite:
+
+```bibtex
+@article{tarhan2025irs,
+  title        = {IRS aided visible light positioning with a single LED transmitter},
+  author       = {Efe Tarhan and Furkan Kokdogan and Sinan Gezici},
+  journal      = {Digital Signal Processing},
+  volume       = {156},
+  pages        = {104799},
+  year         = {2025},
+  publisher    = {Elsevier},
+  doi          = {10.1016/j.dsp.2024.104799},
+  url          = {https://doi.org/10.1016/j.dsp.2024.104799}
+}
+```
 ---
