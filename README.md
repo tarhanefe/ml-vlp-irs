@@ -1,59 +1,149 @@
-# Machine Learning-Enhanced Visible Light Positioning in IRS-Assisted Indoor Environments with a Single LED Transmitter
+# IRS-Aided Visible Light Positioning with a Single LED Transmitter
+
+[![Paper](https://img.shields.io/badge/Paper-ScienceDirect-orange)](https://www.sciencedirect.com/science/article/pii/S105120042400424X)
+[![DOI](https://img.shields.io/badge/DOI-10.1016%2Fj.dsp.2024.104799-blue)](https://doi.org/10.1016/j.dsp.2024.104799)
+[![Citations](https://api.juleskreuer.eu/citation-badge.php?doi=10.1016/j.dsp.2024.104799)](https://scholar.google.com/scholar?q=10.1016%2Fj.dsp.2024.104799)
+[![License](https://img.shields.io/github/license/tarhanefe/ml-vlp-irs)](LICENSE)
+
+> Companion code for the *Digital Signal Processing* (Elsevier, 2025) article on
+> single-LED VLP positioning through an intelligent reflecting surface (IRS).
+
+**Authors:**
+[Efe Tarhan](https://github.com/tarhanefe) ·
+[Furkan Kökdoğan](https://www.researchgate.net/profile/Furkan-Koekdogan) ·
+[Sinan Gezici](https://www.ee.bilkent.edu.tr/~gezici/)
+
+**Paper:** [📄 IRS aided visible light positioning with a single LED transmitter](https://www.sciencedirect.com/science/article/pii/S105120042400424X) — *Digital Signal Processing*, Vol. 156, 104799 (2025). DOI: [10.1016/j.dsp.2024.104799](https://doi.org/10.1016/j.dsp.2024.104799)
+
+---
 
 ## Overview
-This research explores Visible Light Positioning (VLP) using a **single LED transmitter** combined with an **intelligent reflective surface (IRS)**. It evaluates the feasibility of position estimation under **non-line-of-sight (NLoS)** conditions when the line-of-sight (LoS) is blocked. The study compares **classical methods** (Maximum Likelihood Estimation, MLE) and **machine learning-based methods** (K-Nearest Neighbors Regression, KNN, and Fully Connected Neural Networks, FCNN).
 
-## Key Contributions
-- Introduced a **time-division multiplexing scheme** for VLP using a single LED transmitter.
-- Evaluated NLoS-based location estimation using **directed**, **random**, and **uniform mirror orientations**.
-- Compared MLE with the **Cramér-Rao Lower Bound (CRLB)** under varying noise levels.
-- Demonstrated the performance of ML models, particularly KNN and FCNN, without requiring prior knowledge of the channel model.
+This repository contains MATLAB code that reproduces the results of the paper. The
+study investigates visible-light positioning (VLP) in indoor environments where
+the line-of-sight (LoS) between a single LED and the receiver is blocked. A wall
+of individually-tilted micro-mirrors — an **Intelligent Reflecting Surface (IRS)** —
+is used to redirect the LED signal into the room, enabling non-line-of-sight
+(NLoS) localization. The IRS profile (one orientation per mirror group) is
+optimized to minimize the Cramér–Rao lower bound (CRLB) of the position estimator.
 
-## Simulation Setup
-- **Room Dimensions:** 4m × 4m × 3m
-- **LED Transmitter:** Positioned centrally on the ceiling with 5W power.
-- **IRS Configuration:** 441 individually controllable mirrors located on a wall.
-- **Receiver:** Position estimated using NLoS light measurements from mirror orientations.
-- **Noise Conditions:** Simulations included Additive White Gaussian Noise (AWGN) with various variances.
+Key elements:
 
-## Methodology
-1. **Classical Approach:**
-   - MLE optimizes power measurements to determine receiver location.
-   - Benchmarked using the CRLB.
-2. **Machine Learning:**
-   - **KNN Regression:** Trains on power measurement datasets and estimates based on k-nearest neighbors.
-   - **FCNN:** Predicts location using neural networks, with architectures featuring hidden layers and tanh activation functions.
+- **Time-division multiplexing** scheme that reuses a single LED across multiple
+  IRS configurations to produce a sequence of independent measurements.
+- **CRLB analysis** of the resulting NLoS channel as a function of receiver position,
+  mirror count, and noise variance.
+- **IRS-profile optimization** with both gradient-based (`fmincon`) and metaheuristic
+  (PSO) solvers, in bounded, unbounded and ensemble variants.
+- **Maximum-likelihood position estimator** evaluated against the CRLB via Monte-Carlo
+  RMSE simulations.
 
-## Results
-- **Mirror Orientations:**
-  - Directed and uniform orientations provided better focusing and improved accuracy compared to random orientations.
-- **MLE:**
-  - Approached the CRLB with increasing Signal-to-Noise Ratio (SNR).
-- **KNN & FCNN:**
-  - ML models demonstrated competitive performance, especially in high-SNR scenarios.
-  - FCNN outperformed KNN under higher noise levels.
+## Repository Layout
 
-## Conclusion
-This study highlights the potential of IRS-assisted VLP systems with a single LED transmitter. While classical MLE provides high accuracy, machine learning-based methods offer flexibility and reasonable performance without channel model dependency.
+```
+ml-vlp-irs/
+├── README.md
+├── LICENSE
+├── setup_paths.m         <- run once before any script
+├── functions/            <- core simulation + optimization functions
+├── scripts/              <- entry-point scripts that reproduce the paper figures
+│   └── legacy/           <- scratch / unused scripts kept for reference
+├── data/                 <- precomputed .mat results (CRLB, optimized profiles, RMSE)
+│   ├── bounded_single_optim/
+│   ├── bounded_ensemble_optim/
+│   ├── unbounded_single_optim/
+│   ├── data_rmse_crlb_all/
+│   ├── grid_results/
+│   └── figures/          <- raw figure exports tied to the data
+├── figures/              <- paper figures (png/eps/fig + overleaf source)
+└── fingerprinting/       <- side project (ML-based VLP fingerprinting)
+```
 
-## References
-See the full research document for detailed formulas, derivations, and additional references.
+## Getting Started
 
-## 📖 Citation
+Tested with MATLAB R2022b or newer. The Optimization Toolbox and Global Optimization
+Toolbox are required for `fmincon` / `particleswarm`.
 
-If you use this work, please cite:
+```matlab
+% from the repository root
+>> setup_paths              % adds functions/ and fingerprinting/functions/ to the path
+>> cd scripts
+>> demo_room_and_irs        % minimal IRS scene + power-map demonstration
+>> rmse_focused_scenario    % CRLB / RMSE curve for the optimized focused-IRS scenario
+>> plot_paper_figures       % reproduces the RMSE / CRLB comparison figures
+```
+
+Most heavy results (optimized profiles, ensemble runs, Monte-Carlo RMSE) are
+already cached as `.mat` files under [data/](data/), so the plotting scripts run
+in seconds without re-running the optimization.
+
+## Scripts
+
+All scripts are in [scripts/](scripts/) and assume `setup_paths` has been run.
+
+| Script                                                                       | Purpose                                                            | Data folder                                                                                                  |
+|------------------------------------------------------------------------------|--------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------|
+| [demo_room_and_irs.m](scripts/demo_room_and_irs.m)                           | Build a room/IRS scene and visualize received-power maps           | —                                                                                                            |
+| [compare_irs_profiles.m](scripts/compare_irs_profiles.m)                     | CRLB comparison between random / aligned / focused IRS profiles    | —                                                                                                            |
+| [crlb_vs_N.m](scripts/crlb_vs_N.m)                                           | Effect of the number of mirror groups *N* on the CRLB              | —                                                                                                            |
+| [crlb_grid_sweep.m](scripts/crlb_grid_sweep.m)                               | CRLB heatmap evaluated over a grid of receiver positions           | [data/grid_results/](data/grid_results/)                                                                     |
+| [optimize_focused_profiles.m](scripts/optimize_focused_profiles.m)           | Run PSO to optimize the focused IRS profile for *N* ∈ {4, 9, 16, 25} | [data/bounded_single_optim/](data/bounded_single_optim/)                                                     |
+| [rmse_focused_scenario.m](scripts/rmse_focused_scenario.m)                   | Monte-Carlo RMSE evaluation of the focused-profile scenario        | [data/bounded_single_optim/](data/bounded_single_optim/)                                                     |
+| [run_rmse_evaluation.m](scripts/run_rmse_evaluation.m)                       | RMSE sweep across {random, aligned, focused} × {4, 9, 16, 25}      | [data/data_rmse_crlb_all/](data/data_rmse_crlb_all/)                                                         |
+| [plot_paper_figures.m](scripts/plot_paper_figures.m)                         | Re-plot every RMSE / CRLB figure used in the paper                 | [data/data_rmse_crlb_all/](data/data_rmse_crlb_all/)                                                         |
+
+### Legacy / Scratch (not used in the paper)
+
+The [scripts/legacy/](scripts/legacy/) folder holds files that were kept for
+historical reference but are **not** used to produce the paper's figures:
+
+- `sketch_rectangles.m` — early 2-D layout sketch
+- `seed_sensitivity_check.m` — sanity check on RNG seed influence
+- `scratch_optim_sweeps.m` — author's scratch script with redundant / speculative sweeps
+
+## Selected Figures
+
+### Optimized Single-LED IRS Focus
+
+| N = 4 | N = 9 | N = 16 | N = 25 |
+|:---:|:---:|:---:|:---:|
+| ![N=4](figures/png/N_4_SLED.png)  | ![N=9](figures/png/N_9_SLED.png)  | ![N=16](figures/png/N_16_SLED.png) | ![N=25](figures/png/N_25_SLED.png) |
+
+### Focus-Point Optimization
+
+| N = 4 | N = 9 | N = 16 | N = 25 |
+|:---:|:---:|:---:|:---:|
+| ![N=4](figures/png/N_4_Focus.png) | ![N=9](figures/png/N_9_Focus.png) | ![N=16](figures/png/N_16_Focus.png) | ![N=25](figures/png/N_25_Focus.png) |
+
+### CRLB Across Optimization Strategies
+
+![CRLB comparison](data/figures/CRLB_all.png)
+
+## Side Project: Fingerprinting
+
+The [fingerprinting/](fingerprinting/) folder contains an independent, exploratory
+study on **machine-learning-based** VLP (KNN and fully-connected neural-network
+fingerprinting on IRS power measurements). It is *not* part of the published paper
+— see [fingerprinting/README.md](fingerprinting/README.md) for details.
+
+## Citation
+
+If you use this code or its results, please cite:
 
 ```bibtex
 @article{tarhan2025irs,
-  title        = {IRS aided visible light positioning with a single LED transmitter},
-  author       = {Efe Tarhan and Furkan Kokdogan and Sinan Gezici},
-  journal      = {Digital Signal Processing},
-  volume       = {156},
-  pages        = {104799},
-  year         = {2025},
-  publisher    = {Elsevier},
-  doi          = {10.1016/j.dsp.2024.104799},
-  url          = {https://doi.org/10.1016/j.dsp.2024.104799}
+  title   = {IRS aided visible light positioning with a single LED transmitter},
+  author  = {Tarhan, Efe and Kokdogan, Furkan and Gezici, Sinan},
+  journal = {Digital Signal Processing},
+  volume  = {156},
+  pages   = {104799},
+  year    = {2025},
+  publisher = {Elsevier},
+  doi     = {10.1016/j.dsp.2024.104799},
+  url     = {https://doi.org/10.1016/j.dsp.2024.104799}
 }
 ```
----
+
+## License
+
+See [LICENSE](LICENSE).
