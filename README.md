@@ -9,7 +9,7 @@
 > single-LED VLP positioning through an intelligent reflecting surface (IRS).
 
 **Authors:**
-[Efe Tarhan](https://github.com/tarhanefe) ·
+[Efe Tarhan](https://tarhanefe.github.io) ·
 [Furkan Kökdoğan](https://www.researchgate.net/profile/Furkan-Koekdogan) ·
 [Sinan Gezici](https://www.ee.bilkent.edu.tr/~gezici/)
 
